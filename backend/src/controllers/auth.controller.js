@@ -25,8 +25,8 @@ export const signup = async (req, res) => {
     // const idx = Math.floor(Math.random() * 100);
  
 
-    const randomSeed = Math.random().toString(36).substring(2, 12); // 10-char random
-const avatar = `https://api.dicebear.com/7.x/adventurer/png?seed=${randomSeed}`;
+    const idx = Math.random().toString(36).substring(2, 12); // 10-char random
+const avatar = `https://avatar.iran.liara.run/public/${idx}.png`;
     console.log(avatar);
 
     const newUser = await User.create({

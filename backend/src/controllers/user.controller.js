@@ -1,5 +1,5 @@
-import User from "../models/User";
-import FriendRequest from "../models/FriendRequest";
+import User from "../models/User.js";
+import FriendRequest from "../models/FriendRequest.js";
 export const getRecommendedUsers = async (req, res) => {
   try {
     const currentUserId = req.user.id;
@@ -122,7 +122,24 @@ export const getFriendRequests = async(req,res)=>{
       recipent:req.user.id,
       status:"accepted"
     }).populate("recipient","fullName profilePic ");
+
+    res.send(200).json({incomingRegs,acceptedRegs})
   } catch (error) {
-    
+    console.log("Error in getFriendRequests controller", error.message);
+    res.status(500).json({message:"Internal server Error"});
+  }
+}
+
+
+export const getOutgoingFriendReqs = async(req,res)=>{
+  try {
+    const outgoingRequests = await FriendRequest.find({
+      sender:req.user.id,
+      status:"pending",
+    }).populate("recipent","fullName profilePic nativeLanguage learningLanguage")
+    res.status(200).json(outgoingRequests);
+  } catch (error) {
+    console.log("Error in getOutgoingFriendReqs controller", error.message);
+    res.status(500).json({message:"Internal server Error"});
   }
 }
