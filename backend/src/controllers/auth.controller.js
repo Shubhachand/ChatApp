@@ -45,7 +45,7 @@ const avatar = `https://avatar.iran.liara.run/public/${idx}.png`;
      })
      console.log(`Stream user created for ${newUser.fullName}`)
     } catch (error) {
-      console.log("error creating stream user")
+       console.log("Error creating stream user:", error.message);
     }
     const tokenData = {
       userId: newUser._id,
@@ -177,6 +177,7 @@ if(!fullName || !bio || !nativeLanguage || !learningLanguage || !location){
               }
 
 } catch (error) {
-  console.log("Error while onboarding",error)
+  console.log("Error while onboarding", error);
+  return res.status(500).json({ message: "Internal server error during onboarding" });
 }
 }

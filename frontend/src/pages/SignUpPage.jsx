@@ -34,8 +34,8 @@ const SignUpPage = () => {
 
   return (
     <div
-      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-800"
-      data-theme="aqua"
+      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br"
+    
     >
       <div className="border border-blue-200 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-white/90 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300">
         {/* Left Side Form */}
@@ -125,7 +125,7 @@ const SignUpPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="btn w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-md hover:from-cyan-400 hover:to-blue-500 transition-all"
+              className="btn w-full bg-gradient-to-r transition-all"
             >
               {isPending ? (
                 <>
