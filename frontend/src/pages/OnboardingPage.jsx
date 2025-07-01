@@ -1,121 +1,228 @@
-import { useQuery } from "@tanstack/react-query";
-import { getUserFriends } from "../lib/api";
 import { useState } from "react";
-import { MapPinIcon } from "lucide-react";
-import { getLanguageFlag } from "../components/FriendCard";
-import { capitialize } from "../lib/utils";
+import useAuthUser from "../hooks/useAuthUser";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { completeOnboarding } from "../lib/api";
+import {
+  LoaderIcon,
+  MapPinIcon,
+  ShipWheelIcon,
+  ShuffleIcon,
+  CameraIcon,
+} from "lucide-react";
+import { LANGUAGES } from "../constants";
 
-const FriendsPage = () => {
-  const { data: friends = [], isLoading } = useQuery({
-    queryKey: ["friends"],
-    queryFn: getUserFriends,
+const OnboardingPage = () => {
+  const { authUser } = useAuthUser();
+  const queryClient = useQueryClient();
+
+  const [formState, setFormState] = useState({
+    fullName: authUser?.fullName || "",
+    bio: authUser?.bio || "",
+    nativeLanguage: authUser?.nativeLanguage || "",
+    learningLanguage: authUser?.learningLanguage || "",
+    location: authUser?.location || "",
+    profilePic: authUser?.profilePic || "",
   });
 
-  const [selectedFriendId, setSelectedFriendId] = useState(null);
+  const { mutate: onboardingMutation, isPending } = useMutation({
+    mutationFn: completeOnboarding,
+    onSuccess: () => {
+      toast.success("Profile onboarded successfully");
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "An error occurred");
+    },
+  });
 
-  const toggleFriend = (id) => {
-    setSelectedFriendId((prev) => (prev === id ? null : id));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onboardingMutation(formState);
+  };
+
+  const handleRandomAvatar = () => {
+    const idx = Math.floor(Math.random() * 100) + 1;
+    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    setFormState({ ...formState, profilePic: randomAvatar });
+    toast.success("Random profile picture generated!");
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto space-y-6">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-          Your Friends
-        </h2>
+    <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
+      <div className="card bg-base-200 w-full max-w-2xl shadow-xl max-h-[95vh] flex flex-col">
+        <div className="card-body p-6 overflow-y-auto flex-1">
+          <h1 className="text-2xl font-bold text-center mb-4">
+            Complete Your Profile
+          </h1>
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <span className="loading loading-spinner loading-lg" />
-          </div>
-        ) : friends.length === 0 ? (
-          <div className="card bg-base-200 p-6 text-center">
-            <h3 className="font-semibold text-lg mb-2">No friends yet</h3>
-            <p className="text-base-content opacity-70">
-              Add some friends to get started!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {friends.map((friend) => {
-              const isExpanded = selectedFriendId === friend._id;
-
-              return (
-                <div
-                  key={friend._id}
-                  className="card bg-base-100 shadow-md hover:shadow-lg transition-all"
-                >
-                  <div
-                    onClick={() => toggleFriend(friend._id)}
-                    className="card-body cursor-pointer"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="avatar">
-                        <div className="w-16 rounded-full">
-                          <img
-                            src={friend.profilePic}
-                            alt={friend.fullName}
-                            className="object-cover"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold">{friend.fullName}</h3>
-                        {friend.location && (
-                          <div className="flex items-center text-sm text-gray-500 mt-1">
-                            <MapPinIcon className="size-4 mr-1" />
-                            {friend.location}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {isExpanded && (
-                      <div className="mt-4 border-t pt-4 border-base-300 space-y-3 text-sm">
-                        {friend.bio && (
-                          <p>
-                            <span className="font-medium">Bio:</span>{" "}
-                            <span className="opacity-80">{friend.bio}</span>
-                          </p>
-                        )}
-                        {friend.nativeLanguage && (
-                          <p>
-                            <span className="font-medium">Native Language:</span>{" "}
-                            {getLanguageFlag(friend.nativeLanguage)}{" "}
-                            {capitialize(friend.nativeLanguage)}
-                          </p>
-                        )}
-                        {friend.learningLanguage && (
-                          <p>
-                            <span className="font-medium">Learning Language:</span>{" "}
-                            {getLanguageFlag(friend.learningLanguage)}{" "}
-                            {capitialize(friend.learningLanguage)}
-                          </p>
-                        )}
-                        {friend.email && (
-                          <p>
-                            <span className="font-medium">Email:</span>{" "}
-                            {friend.email}
-                          </p>
-                        )}
-                        {friend._id && (
-                          <p className="opacity-50 text-xs">
-                            <span className="font-medium">User ID:</span>{" "}
-                            {friend._id}
-                          </p>
-                        )}
-                      </div>
-                    )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Profile Picture - Compact */}
+            <div className="flex flex-col items-center space-y-3">
+              <div className="size-24 rounded-full bg-base-300 overflow-hidden">
+                {formState.profilePic ? (
+                  <img
+                    src={formState.profilePic}
+                    alt="Profile Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <CameraIcon className="size-8 text-base-content opacity-40" />
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleRandomAvatar}
+                className="btn btn-accent btn-sm px-4"
+              >
+                <ShuffleIcon className="size-3 mr-1" />
+                Generate Random Avatar
+              </button>
+            </div>
+
+            {/* Full Name */}
+            <div className="form-control">
+              <label className="label py-1">
+                <span className="label-text font-medium">Full Name</span>
+              </label>
+              <input
+                type="text"
+                name="fullName"
+                value={formState.fullName}
+                onChange={(e) =>
+                  setFormState({ ...formState, fullName: e.target.value })
+                }
+                className="input input-bordered input-sm w-full"
+                placeholder="Your full name"
+                required
+              />
+            </div>
+
+            {/* Bio */}
+            <div className="form-control">
+              <label className="label py-1">
+                <span className="label-text font-medium">Bio</span>
+              </label>
+              <textarea
+                name="bio"
+                value={formState.bio}
+                onChange={(e) =>
+                  setFormState({ ...formState, bio: e.target.value })
+                }
+                className="textarea textarea-bordered textarea-sm h-16 w-full resize-none"
+                placeholder="Tell others about yourself and your language learning goals"
+                required
+              />
+            </div>
+
+            {/* Language Selection - Side by Side */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Native Language */}
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text font-medium text-xs">
+                    Native Language
+                  </span>
+                </label>
+                <select
+                  name="nativeLanguage"
+                  value={formState.nativeLanguage}
+                  onChange={(e) =>
+                    setFormState({
+                      ...formState,
+                      nativeLanguage: e.target.value,
+                    })
+                  }
+                  className="select select-bordered select-sm w-full text-sm"
+                  required
+                >
+                  <option value="">Select native</option>
+                  {LANGUAGES.map((lang) => (
+                    <option key={`native-${lang}`} value={lang.toLowerCase()}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Learning Language */}
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text font-medium text-xs">
+                    Learning Language
+                  </span>
+                </label>
+                <select
+                  name="learningLanguage"
+                  value={formState.learningLanguage}
+                  onChange={(e) =>
+                    setFormState({
+                      ...formState,
+                      learningLanguage: e.target.value,
+                    })
+                  }
+                  className="select select-bordered select-sm w-full text-sm"
+                  required
+                >
+                  <option value="">Select learning</option>
+                  {LANGUAGES.map((lang) => (
+                    <option key={`learning-${lang}`} value={lang.toLowerCase()}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="form-control">
+              <label className="label py-1">
+                <span className="label-text font-medium">Location</span>
+              </label>
+              <div className="relative">
+                <MapPinIcon className="absolute top-1/2 transform -translate-y-1/2 left-3 size-4 text-base-content opacity-70" />
+                <input
+                  type="text"
+                  name="location"
+                  value={formState.location}
+                  onChange={(e) =>
+                    setFormState({ ...formState, location: e.target.value })
+                  }
+                  className="input input-bordered input-sm w-full pl-10"
+                  placeholder="City, Country"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-2">
+              <button
+                className="btn btn-primary w-full btn-sm"
+                disabled={isPending}
+                type="submit"
+              >
+                {!isPending ? (
+                  <>
+                    <ShipWheelIcon className="size-4 mr-2" />
+                    Complete Onboarding
+                  </>
+                ) : (
+                  <>
+                    <LoaderIcon className="animate-spin size-4 mr-2" />
+                    Processing...
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default FriendsPage;
+export default OnboardingPage;

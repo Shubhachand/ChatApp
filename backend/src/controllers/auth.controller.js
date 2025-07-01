@@ -34,6 +34,7 @@ const avatar = `https://avatar.iran.liara.run/public/${idx}.png`;
       password,
       fullName,
       profilePic: avatar,
+      isOnboarded: false, 
     });
  
      // stream is pending to be done
