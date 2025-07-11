@@ -24,27 +24,6 @@ A secure and scalable **real-time chat application** built using the **MERN stac
 
 ---
 
-## 🗂️ Folder Structure
-
-
-chat-app/
-│
-├── backend/
-│ ├── src/
-│ │ ├── config/ # MongoDB connection & env config
-│ │ ├── controllers/ # Auth & Chat logic
-│ │ ├── middleware/ # JWT verification, error handling
-│ │ ├── models/ # Mongoose schemas (User, Message)
-│ │ └── routes/ # Express routers (auth, chat)
-│ └── server.js # Entry point
-│
-├── frontend/
-│ ├── public/
-│ └── src/
-│ ├── components/ # ChatBox, Message, InputField, etc.
-│ ├── pages/ # Login, Signup, Dashboard
-│ └── App.js # Routing & layout
-
 ## ⚙️ Getting Started
 
 ### 📥 Clone the repository
