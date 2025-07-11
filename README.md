@@ -49,7 +49,7 @@ chat-app/
 
 ### 📥 Clone the repository
 
-git clone https://github.com/your-username/chat-app.git
+git clone 
 cd chat-app
 🖥 Backend Setup
 cd backend
@@ -71,8 +71,8 @@ Method	Route	Description
 POST	/api/user/signup	Register new user
 POST	/api/user/login	User login (cookie auth)
 GET	/api/user/dashboard	Protected route
-GET	/api/chat (planned)	Fetch messages
-POST	/api/chat (planned)	Send a message
+GET	/api/chat Fetch messages
+POST	/api/chat 	Send a message
 
 🔒 Auth Flow
 ✅ JWT Token sent via HttpOnly cookies
